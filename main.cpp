@@ -148,14 +148,14 @@ int main () {
                 }
             }
 
-            if (Left) camera_x -= 3.0/FPS;
-            if (Right) camera_x += 3.0/FPS;
-            if (Up) camera_z += 3.0/FPS;
-            if (Down) camera_z -= 3.0/FPS;
-            if (W) camera_rot_x += .6/FPS;
-            if (A) camera_rot_y -= .6/FPS;
-            if (S) camera_rot_x -= .6/FPS;
-            if (D) camera_rot_y += .6/FPS;
+            if (Left) camera_x -= 10.0/FPS;
+            if (Right) camera_x += 10.0/FPS;
+            if (Up) camera_z += 10.0/FPS;
+            if (Down) camera_z -= 10.0/FPS;
+            if (W) camera_rot_x += 1.0/FPS;
+            if (A) camera_rot_y -= 1.0/FPS;
+            if (S) camera_rot_x -= 1.0/FPS;
+            if (D) camera_rot_y += 1.0/FPS;
 
             SDL_SetRenderDrawColor(renderer, 0,0,0,255);
 
@@ -200,6 +200,6 @@ int main () {
             SDL_RenderPresent(renderer);
         }
     }
-    SDL_Delay(1000);
+
     return 0;
 }

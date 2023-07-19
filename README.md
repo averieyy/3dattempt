@@ -19,7 +19,7 @@ Thank you for your attention
         - [ ] Roads
 - Bugs
     - [ ] Movement doesn't change based on rotation
-    - [x] Lines doesn't work
+    - [ ] Lines occationally render where they should'nt
         - [x] Also uses a lot of the cpu
     - [ ] Vertices behind the camera still render *
 
@@ -27,5 +27,5 @@ Thank you for your attention
 
 ## Credits
 
-- [SDL]("https://www.libsdl.org") - libSDL organization
-- [Perlin Noise]("https://github.com/Reputeless/PerlinNoise") - Reputeless
+- [SDL]("https://www.libsdl.org") - libSDL org
+- [Perlin Noise]("https://github.com/Reputeless/PerlinNoise") - github/Reputeless
