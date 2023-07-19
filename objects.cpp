@@ -4,7 +4,7 @@
 
 double camera_x = 0;
 double camera_y = 0;
-double camera_z = -5;
+double camera_z = 0;
 
 double camera_rot_x = 0; // Spinnies
 double camera_rot_y = 0; // Uppies

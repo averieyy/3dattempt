@@ -152,9 +152,9 @@ int main () {
             if (Right) camera_x += 10.0/FPS;
             if (Up) camera_z += 10.0/FPS;
             if (Down) camera_z -= 10.0/FPS;
-            if (W) camera_rot_x += 1.0/FPS;
+            if (W && camera_rot_x <= 1.5) camera_rot_x += 1.0/FPS;
             if (A) camera_rot_y -= 1.0/FPS;
-            if (S) camera_rot_x -= 1.0/FPS;
+            if (S && camera_rot_x > -1.5) camera_rot_x -= 1.0/FPS;
             if (D) camera_rot_y += 1.0/FPS;
 
             SDL_SetRenderDrawColor(renderer, 0,0,0,255);
@@ -176,16 +176,16 @@ int main () {
 
                 std::list<std::vector<int>> lines;
 
-                for (int i = 0; i < 16; ++i) {
-                    for (int ii = 0; ii < 16; ++ii) {
-                        if (i != 15) {
-                            lines.push_back(std::vector<int>{ii*16+i,ii*16+i+1});
+                for (int x = 0; x < CHUNK_SIZE; ++x) {
+                    for (int y = 0; y < CHUNK_SIZE; ++y) {
+                        if (x != 15) {
+                            lines.push_back(std::vector<int>{y*CHUNK_SIZE+x,y*CHUNK_SIZE+x+1});
                         }
-                        if (ii != 15) {
-                            lines.push_back(std::vector<int>{ii*16+i,(ii+1)*16+i});
+                        if (y != 15) {
+                            lines.push_back(std::vector<int>{y*CHUNK_SIZE+x,(y+1)*CHUNK_SIZE+x});
                         }
-                        if (ii != 15 && i != 15) {
-                            lines.push_back(std::vector<int>{ii*16+i,(ii+1)*16+i+1});
+                        if (y != 15 && x != 15) {
+                            lines.push_back(std::vector<int>{y*CHUNK_SIZE+x,(y+1)*CHUNK_SIZE+x+1});
                         }
                     }
                 }
