@@ -15,10 +15,17 @@ Thank you for your attention
 - [x] Basic projection
 - [ ] Game dev (driving sim)
     - [ ] Procedural generation *
-        - [ ] Terrain generation (perlin noise) *
+        - [x] Terrain generation (perlin noise)
         - [ ] Roads
 - Bugs
     - [ ] Movement doesn't change based on rotation
-    - [ ] Lines doesn't work
+    - [x] Lines doesn't work
         - [x] Also uses a lot of the cpu
-    - [ ] Vertices behind the camera still render
+    - [ ] Vertices behind the camera still render *
+
+
+
+## Credits
+
+- [SDL]("https://www.libsdl.org") - libSDL organization
+- [Perlin Noise]("https://github.com/Reputeless/PerlinNoise") - Reputeless

@@ -2,14 +2,6 @@
 #include <cmath>
 #include "objects.cpp"
 
-struct coord {
-    double coord[2];
-};
-
-struct vertex {
-    double vertex[3];
-};
-
 std::vector<double> coord_from_vertex(std::vector<double> vertex) {
     double x = vertex[0] - camera_x;
     double y = vertex[1] - camera_y;

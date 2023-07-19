@@ -40,7 +40,12 @@ int main () {
 
     SDL_RenderPresent(renderer);
 
-    std::cout << "post-init\n";
+    // Initialize landscape
+    for (int i = 0; i < 5; i++) {
+        for (int ii = 0; ii < 5; ++ii) {
+            chunks.push_back(create_chunk(i,ii));
+        }
+    }
 
     double idealdelta = 1000000000 / FPS;
 
@@ -59,8 +64,6 @@ int main () {
         if (delta >= idealdelta) {
 
             delta = delta - idealdelta;
-
-            std::cout << delta << "\n";
 
             while ( SDL_PollEvent( &ev ) != 0) {
                 switch (ev.type) {
@@ -160,18 +163,38 @@ int main () {
 
             SDL_SetRenderDrawColor(renderer, 255,255,255, 255);
 
-            std::vector<std::vector<double>> p_ver = {};
 
-            for (auto i : vertecies) {
-                std::vector<double> coord = coord_from_vertex(i);
-                p_ver.push_back({coord[0], coord[1]});
-                SDL_RenderDrawPoint(renderer, coord[0], coord[1]);
-            }
+            for (auto j : chunks) {
+                
+                std::vector<std::vector<double>> p_ver = {};
+                
+                for (auto i : chunk_to_vertecies(j)) {
+                    std::vector<double> coord = coord_from_vertex(i);
+                    p_ver.push_back({coord[0], coord[1]});
+                    SDL_RenderDrawPoint(renderer, coord[0], coord[1]);
+                }
 
-            for (auto i : lines) {
-                if (p_ver[i[0]][0] > -1000 && p_ver[i[0]][0] <= window_w+1000 && p_ver[i[0]][1] > -1000 && p_ver[i[0]][1] <= window_h+1000 &&
-                    p_ver[i[1]][0] > -1000 && p_ver[i[1]][0] <= window_w+1000 && p_ver[i[1]][1] > -1000 && p_ver[i[1]][1] <= window_h+1000)
-                    SDL_RenderDrawLine(renderer, p_ver[i[0]][0], p_ver[i[0]][1], p_ver[i[1]][0], p_ver[i[1]][1]);
+                std::list<std::vector<int>> lines;
+
+                for (int i = 0; i < 16; ++i) {
+                    for (int ii = 0; ii < 16; ++ii) {
+                        if (i != 15) {
+                            lines.push_back(std::vector<int>{ii*16+i,ii*16+i+1});
+                        }
+                        if (ii != 15) {
+                            lines.push_back(std::vector<int>{ii*16+i,(ii+1)*16+i});
+                        }
+                        if (ii != 15 && i != 15) {
+                            lines.push_back(std::vector<int>{ii*16+i,(ii+1)*16+i+1});
+                        }
+                    }
+                }
+
+                for (auto i : lines) {
+                    if (p_ver[i[0]][0] > -1000 && p_ver[i[0]][0] <= window_w+1000 && p_ver[i[0]][1] > -1000 && p_ver[i[0]][1] <= window_h+1000 &&
+                        p_ver[i[1]][0] > -1000 && p_ver[i[1]][0] <= window_w+1000 && p_ver[i[1]][1] > -1000 && p_ver[i[1]][1] <= window_h+1000)
+                        SDL_RenderDrawLine(renderer, p_ver[i[0]][0], p_ver[i[0]][1], p_ver[i[1]][0], p_ver[i[1]][1]);
+                }
             }
 
             SDL_RenderPresent(renderer);
