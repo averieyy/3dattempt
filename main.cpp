@@ -1,6 +1,7 @@
 #include "SDL.h"
 #include <iostream>
 #include "3d.cpp"
+#include <math.h>
 
 // Some definitions
 #define WINDOW_WIDTH 1024
@@ -26,7 +27,7 @@ int main () {
     // Init SDL and the window
     SDL_Init(SDL_INIT_VIDEO);
 
-    SDL_Window *window = SDL_CreateWindow("lorem ipsum", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_w, window_h, SDL_WINDOW_MAXIMIZED);
+    SDL_Window *window = SDL_CreateWindow("lorem ipsum", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_w, window_h, SDL_WINDOW_SHOWN);
 
     // I will probably need to change these later
     SDL_Renderer *renderer = SDL_CreateRenderer(window, 1, 0);
@@ -59,14 +60,19 @@ int main () {
         last = now;
         now = SDL_GetPerformanceCounter();
 
+        if (delta < idealdelta / 10)
+            SDL_Delay((idealdelta - delta) / 1000000);
+
         delta += (double) (now-last);
 
         if (delta >= idealdelta) {
 
             delta = delta - idealdelta;
 
+            // Events
             while ( SDL_PollEvent( &ev ) != 0) {
                 switch (ev.type) {
+                    // Quit and terminating
                     case SDL_QUIT:
                         running = false;
                         SDL_DestroyRenderer(renderer);
@@ -80,6 +86,7 @@ int main () {
                         SDL_DestroyWindow(window);
                         SDL_Quit();
                         return 0;
+                    // Keyevents
                     case SDL_KEYDOWN:
                         switch(ev.key.keysym.sym){
                             case SDLK_LEFT:
@@ -136,6 +143,7 @@ int main () {
                                 break;
                         }
                         break;
+                    // Resizing and such
                     case SDL_WINDOWEVENT:
                         if (ev.window.event == SDL_WINDOWEVENT_RESIZED) {
                             window_w = ev.window.data1;
@@ -144,26 +152,43 @@ int main () {
                             originy = window_h / 2;
                         }
                         break;
-                    
                 }
             }
 
-            if (Left) camera_x -= 10.0/FPS;
-            if (Right) camera_x += 10.0/FPS;
-            if (Up) camera_z += 10.0/FPS;
-            if (Down) camera_z -= 10.0/FPS;
+            // Move camera
+            // if (Left) camera_x -= 10.0/FPS;
+            // if (Right) camera_x += 10.0/FPS;
+            if (Left) {
+                camera_x += cos(camera_rot_y + M_PI) / 5;
+                camera_z += sin(camera_rot_y) / 5;
+            }
+            if (Right) {
+                camera_x += cos(camera_rot_y) / 5;
+                camera_z += sin(camera_rot_y + M_PI) / 5;
+            }
+            if (Up) {
+                camera_x += sin(camera_rot_y) / 5;
+                camera_z += cos(camera_rot_y) / 5;
+            }
+            if (Down) {
+                camera_x -= sin(camera_rot_y) / 5;
+                camera_z -= cos(camera_rot_y) / 5;
+            }
+            // if (Up) camera_z += 10.0/FPS;
+            // if (Down) camera_z -= 10.0/FPS;
             if (W && camera_rot_x <= 1.5) camera_rot_x += 1.0/FPS;
             if (A) camera_rot_y -= 1.0/FPS;
             if (S && camera_rot_x > -1.5) camera_rot_x -= 1.0/FPS;
             if (D) camera_rot_y += 1.0/FPS;
 
+            // Clear Screen
             SDL_SetRenderDrawColor(renderer, 0,0,0,255);
 
             SDL_RenderClear(renderer);
 
             SDL_SetRenderDrawColor(renderer, 255,255,255, 255);
 
-
+            // Render landscape
             for (auto j : chunks) {
                 
                 std::vector<std::vector<double>> p_ver = {};
@@ -171,9 +196,10 @@ int main () {
                 for (auto i : chunk_to_vertecies(j)) {
                     std::vector<double> coord = coord_from_vertex(i);
                     p_ver.push_back({coord[0], coord[1]});
-                    SDL_RenderDrawPoint(renderer, coord[0], coord[1]);
+                    SDL_RenderDrawPoint(renderer, coord[0], coord[1]); // Render vertex
                 }
 
+                // Generate lines between vertecies
                 std::list<std::vector<int>> lines;
 
                 for (int x = 0; x < CHUNK_SIZE; ++x) {
@@ -190,13 +216,15 @@ int main () {
                     }
                 }
 
+                // Render lines
                 for (auto i : lines) {
                     if (p_ver[i[0]][0] > -1000 && p_ver[i[0]][0] <= window_w+1000 && p_ver[i[0]][1] > -1000 && p_ver[i[0]][1] <= window_h+1000 &&
-                        p_ver[i[1]][0] > -1000 && p_ver[i[1]][0] <= window_w+1000 && p_ver[i[1]][1] > -1000 && p_ver[i[1]][1] <= window_h+1000)
+                        p_ver[i[1]][0] > -1000 && p_ver[i[1]][0] <= window_w+1000 && p_ver[i[1]][1] > -1000 && p_ver[i[1]][1] <= window_h+1000) // Do not render if the line is going too far off screen (Crash pervention)
                         SDL_RenderDrawLine(renderer, p_ver[i[0]][0], p_ver[i[0]][1], p_ver[i[1]][0], p_ver[i[1]][1]);
                 }
             }
 
+            // Render (Show rendered)
             SDL_RenderPresent(renderer);
         }
     }
