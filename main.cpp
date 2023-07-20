@@ -42,11 +42,7 @@ int main () {
     SDL_RenderPresent(renderer);
 
     // Initialize landscape
-    for (int i = 0; i < 5; i++) {
-        for (int ii = 0; ii < 5; ++ii) {
-            chunks.push_back(create_chunk(i,ii));
-        }
-    }
+    chunks = create_landscape(0,0,5,0);
 
     double idealdelta = 1000000000 / FPS;
 
@@ -190,6 +186,21 @@ int main () {
 
             // Render landscape
             for (auto j : chunks) {
+
+                switch (j.type) {
+                    case 0:
+                        SDL_SetRenderDrawColor(renderer, 255,255,255, 255);
+                        break;
+                    case 1:
+                        SDL_SetRenderDrawColor(renderer, 255,0,0, 255);
+                        break;
+                    case 2:
+                        SDL_SetRenderDrawColor(renderer, 0,0,255, 255);
+                        break;
+                    case 3:
+                        SDL_SetRenderDrawColor(renderer, 0,255,0, 255);
+                        break;
+                }
                 
                 std::vector<std::vector<double>> p_ver = {};
                 

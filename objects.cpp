@@ -18,4 +18,4 @@ int focal_length = 3;
 // Object lists
 std::list<std::vector<double>> vertecies = {{1,1,1},{-1,1,1},{1,-1,1},{-1,-1,1},{1,1,-1},{-1,1,-1},{1,-1,-1},{-1,-1,-1}};
 std::list<std::vector<int>> faces[] = {{}};
-std::list<terrain_chunk> chunks;
+std::vector<terrain_chunk> chunks;
