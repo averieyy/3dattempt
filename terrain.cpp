@@ -39,7 +39,7 @@ std::list<std::vector<double>> chunk_to_vertecies(terrain_chunk c) {
     return vertecies;
 }
 
-std::vector<terrain_chunk> create_landscape (int sx, int sy, int size, int angle) { // start x, start y (corners), size (ex. 5x5 chunks), angle (0: -x-y, 1: +x-y, 2: +x+y, 3: -x+y)
+std::vector<terrain_chunk> create_landscape (int sx, int sy, int size) { // start x, start y (corners), size (ex. 5x5 chunks)
     std::vector<terrain_chunk> landscape;
     
     for (int x = 0; x < size; x++) {
@@ -47,22 +47,9 @@ std::vector<terrain_chunk> create_landscape (int sx, int sy, int size, int angle
             landscape.push_back(create_chunk(sx + x, sy + y));
         }
     }
-    if (angle == 0) {
-        landscape[0].type = 1;
-        landscape[size*size-1].type = 2;
-    }
-    if (angle == 1) {
-        landscape[size-1].type = 1;
-        landscape[size*(size-1)].type = 2;
-    }
-    if (angle == 2) {
-        landscape[size*size-1].type = 1;
-        landscape[0].type = 2;
-    }
-    if (angle == 3) {
-        landscape[size*(size-1)].type = 1;
-        landscape[size-1].type = 2;
-    }
+
+    landscape[0].type = 1;
+    landscape[size*size-1].type = 2;
 
     int x = -1;
     int y = -1;
