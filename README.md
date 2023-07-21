@@ -11,12 +11,13 @@ Continue at your own risk
 - [ ] Game dev (driving sim)
     - [ ] Procedural generation
         - [x] Terrain generation (perlin noise)
-        - [ ] Expandable map
+        - [x] Expandable map
+    - [x] Gravity (Landscape collision)
     - 
 - Bugs
     - [x] Movement doesn't change based on rotation
         - [x] Also uses a lot of the cpu
-    - [x] Vertices behind the camera still render *
+    - [x] Vertices behind the camera still render
         - [x] Lines occationally render where they should'nt
     - [ ] Game loop often uses 100% CPU
 

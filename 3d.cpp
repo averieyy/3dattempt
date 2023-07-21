@@ -11,7 +11,7 @@ std::vector<double> coord_from_vertex(std::vector<double> vertex) {
     double dy = sin(camera_rot_x)*(cos(camera_rot_y)*z + sin(camera_rot_y)*(sin(camera_rot_z)*y + cos(camera_rot_z)*x)) + cos(camera_rot_x) * (cos(camera_rot_z)*y - sin(camera_rot_z)*x);
     double dz = cos(camera_rot_x)*(cos(camera_rot_y)*z + sin(camera_rot_y)*(sin(camera_rot_z)*y + cos(camera_rot_z)*x)) - sin(camera_rot_x) * (cos(camera_rot_z)*y - sin(camera_rot_z)*x);
     
-    if (dz < 0) return {0,0};
+    if (dz < 0) return std::vector<double> {};
     // double dx = cos(camera_rot_y)*(sin(camera_rot_z)*pp_vy+cos(camera_rot_z)*pp_vx) - sin(camera_rot_y)*pp_vz;
     // double dy = sin(camera_rot_x)*(cos(camera_rot_y)*pp_vz+sin(camera_rot_y)*(sin(camera_rot_z)*pp_vy+cos(camera_rot_z)*pp_vx)) + cos(camera_rot_x)*(cos(camera_rot_z)*pp_vy+sin(camera_rot_z)*pp_vx);
     // double dz = cos(camera_rot_x)*(cos(camera_rot_y)*pp_vz+sin(camera_rot_y)*(sin(camera_rot_z)*pp_vy+cos(camera_rot_z)*pp_vx)) - sin(camera_rot_x)*(cos(camera_rot_z)*pp_vy+sin(camera_rot_z)*pp_vx);

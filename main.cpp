@@ -9,6 +9,14 @@
 
 #define FPS 60
 
+bool should_clip (std::vector<int> line, std::vector<double> vertex1, std::vector<double> vertex2, int wh, int ww) {
+    if (vertex1.size() == 0 || vertex2.size() == 0) return true; // Checks if vector is empty (vertex is not visible)
+    if (vertex1[0] > -1000 && vertex1[0] <= ww+1000 && vertex1[1] > -1000 && vertex1[1] <= wh+1000 &&
+        vertex2[0] > -1000 && vertex2[0] <= ww+1000 && vertex2[1] > -1000 && vertex2[1] <= wh+1000) // Do not render if the line is going too far off screen (Crash pervention)
+        return false;
+    return true;
+}
+
 int main () {
     // controls
     bool Left = false;
@@ -42,7 +50,7 @@ int main () {
     SDL_RenderPresent(renderer);
 
     // Initialize landscape
-    chunks = create_landscape(0,0,5,0);
+    chunks = create_landscape(0,0,5);
 
     double idealdelta = 1000000000 / FPS;
 
@@ -152,6 +160,7 @@ int main () {
             }
 
             // Move camera
+
             // if (Left) camera_x -= 10.0/FPS;
             // if (Right) camera_x += 10.0/FPS;
             if (Left) {
@@ -176,6 +185,21 @@ int main () {
             if (A) camera_rot_y -= 1.0/FPS;
             if (S && camera_rot_x > -1.5) camera_rot_x -= 1.0/FPS;
             if (D) camera_rot_y += 1.0/FPS;
+
+            // Gravity & staying on the ground
+            double ground_height = get_perlin_at(camera_x, camera_z) * 10 - 2;
+            if (player_on_ground) {
+                camera_y = ground_height;
+            }
+            else {
+                if (camera_y < ground_height) {
+                    camera_y += 0.2;
+                }
+                else {
+                    camera_y = ground_height;
+                    player_on_ground = true;
+                }
+            }
 
             // Clear Screen
             SDL_SetRenderDrawColor(renderer, 0,0,0,255);
@@ -202,14 +226,18 @@ int main () {
                         break;
                 }
                 
+                // PROJECT VERTECIES
                 std::vector<std::vector<double>> p_ver = {};
                 
                 for (auto i : chunk_to_vertecies(j)) {
                     std::vector<double> coord = coord_from_vertex(i);
+                    if (coord.size() == 0) {
+                        p_ver.push_back({});
+                        continue;
+                    } // Handle non-visible vertecies
                     p_ver.push_back({coord[0], coord[1]});
                     SDL_RenderDrawPoint(renderer, coord[0], coord[1]); // Render vertex
                 }
-
                 // Generate lines between vertecies
                 std::list<std::vector<int>> lines;
 
@@ -229,8 +257,7 @@ int main () {
 
                 // Render lines
                 for (auto i : lines) {
-                    if (p_ver[i[0]][0] > -1000 && p_ver[i[0]][0] <= window_w+1000 && p_ver[i[0]][1] > -1000 && p_ver[i[0]][1] <= window_h+1000 &&
-                        p_ver[i[1]][0] > -1000 && p_ver[i[1]][0] <= window_w+1000 && p_ver[i[1]][1] > -1000 && p_ver[i[1]][1] <= window_h+1000) // Do not render if the line is going too far off screen (Crash pervention)
+                    if (!should_clip(i, p_ver[i[0]], p_ver[i[1]], window_w, window_h))
                         SDL_RenderDrawLine(renderer, p_ver[i[0]][0], p_ver[i[0]][1], p_ver[i[1]][0], p_ver[i[1]][1]);
                 }
             }
