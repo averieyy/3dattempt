@@ -17,6 +17,18 @@ bool should_clip (std::vector<int> line, std::vector<double> vertex1, std::vecto
     return true;
 }
 
+int get_chunk_type (double x, double y) {
+    for (auto c : chunks) {
+        if (x <= c.x*CHUNK_SIZE + CHUNK_SIZE && x > c.x * CHUNK_SIZE) {
+            if (y <= c.y*CHUNK_SIZE + CHUNK_SIZE && y > c.y * CHUNK_SIZE) {
+                
+                return c.type;
+            }
+        }
+    }
+    return 0;
+}
+
 int main () {
     // controls
     bool Left = false;
@@ -27,6 +39,16 @@ int main () {
     bool A = false;
     bool S = false;
     bool D = false;
+
+    // Movement velocity
+    double x_velocity = 0;
+    double y_velocity = 0.025;
+    double z_velocity = 0;
+
+    double speed_modifier = 1;
+
+    double x_rot_v = 0;
+    double y_rot_v = 0;
 
     //window
     int window_w = WINDOW_WIDTH;
@@ -51,15 +73,17 @@ int main () {
 
     // Initialize landscape
     chunks = create_landscape(0,0,5);
-
-    double idealdelta = 1000000000 / FPS;
+    bool can_proceed = false;
 
     SDL_Event ev;
 
+    double idealdelta = 1000000000 / FPS;
+    
     bool running = true;
     long now = SDL_GetPerformanceCounter();
     long last = 0;
     double delta = 0;
+
     while (running) {
         last = now;
         now = SDL_GetPerformanceCounter();
@@ -163,41 +187,81 @@ int main () {
 
             // if (Left) camera_x -= 10.0/FPS;
             // if (Right) camera_x += 10.0/FPS;
-            if (Left) {
-                camera_x += cos(camera_rot_y + M_PI) / 5;
-                camera_z += sin(camera_rot_y) / 5;
+            if (Left && (y_rot_v <= 4.0/FPS || y_rot_v >= -4.0/FPS)) {
+                y_rot_v -= 1.0/FPS/5;
             }
-            if (Right) {
-                camera_x += cos(camera_rot_y) / 5;
-                camera_z += sin(camera_rot_y + M_PI) / 5;
+            if (Right && (y_rot_v <= 4.0/FPS || y_rot_v >= -4.0/FPS)) {
+                y_rot_v += 1.0/FPS/5;
             }
-            if (Up) {
-                camera_x += sin(camera_rot_y) / 5;
-                camera_z += cos(camera_rot_y) / 5;
+            if (Up && abs(x_velocity) < 2 && abs(z_velocity) < 2) {
+                x_velocity += sin(camera_rot_y) / FPS * speed_modifier;
+                z_velocity += cos(camera_rot_y) / FPS * speed_modifier;
             }
-            if (Down) {
-                camera_x -= sin(camera_rot_y) / 5;
-                camera_z -= cos(camera_rot_y) / 5;
+            if (Down && abs(x_velocity) < 2 && abs(z_velocity) < 2) {
+                x_velocity -= sin(camera_rot_y) / FPS * speed_modifier;
+                z_velocity -= cos(camera_rot_y) / FPS * speed_modifier;
             }
-            // if (Up) camera_z += 10.0/FPS;
-            // if (Down) camera_z -= 10.0/FPS;
-            if (W && camera_rot_x <= 1.5) camera_rot_x += 1.0/FPS;
-            if (A) camera_rot_y -= 1.0/FPS;
-            if (S && camera_rot_x > -1.5) camera_rot_x -= 1.0/FPS;
-            if (D) camera_rot_y += 1.0/FPS;
+
+            if (!Down && !Up && (Right || Left)) {
+                // Drift
+                if (Left) {
+
+                }
+            }
+
+            camera_x += x_velocity;
+            camera_z += z_velocity;
+
+            camera_rot_y += y_rot_v;
+
+            x_velocity *= 0.97;
+            z_velocity *= 0.97;
+
+            y_rot_v *= 0.95;
+            if (!Left && !Right || (!Up && !Down)) y_rot_v *= 0.9;
+
+            // OLD ROTATION
+            // if (W && camera_rot_x <= 1.5) camera_rot_x += 1.0/FPS;
+            // if (A) camera_rot_y -= 1.0/FPS;
+            // if (S && camera_rot_x > -1.5) camera_rot_x -= 1.0/FPS;
+            // if (D) camera_rot_y += 1.0/FPS;
 
             // Gravity & staying on the ground
             double ground_height = get_perlin_at(camera_x, camera_z) * 10 - 2;
-            if (player_on_ground) {
+            if (player_on_ground &&
+                camera_y >= ground_height) {
                 camera_y = ground_height;
+                speed_modifier = 0.75;
             }
             else {
+                speed_modifier = 1;
+                if (player_on_ground) y_velocity = 0.015;
+                player_on_ground = false;
                 if (camera_y < ground_height) {
-                    camera_y += 0.2;
+                    if (y_velocity <= 0.75)
+                        y_velocity *= 1.12;
+                    camera_y += y_velocity;
                 }
                 else {
                     camera_y = ground_height;
                     player_on_ground = true;
+                }
+            }
+
+            // Add points & start next level
+            if (player_on_ground) {
+                switch (get_chunk_type(camera_x, camera_z)) {
+                    case 2:
+                        can_proceed = true;
+                        for (int i = 0; i < chunks.size(); ++i) {
+                            if (chunks[i].type == 2) chunks[i].type = 0;
+                        }
+                        break;
+                    case 1:
+                        if (can_proceed) {
+                            can_proceed = false;
+                            chunks = create_landscape(chunks[chunks.size()-1].x, chunks[chunks.size()-1].y, 5);
+                        }
                 }
             }
 
@@ -216,12 +280,9 @@ int main () {
                         SDL_SetRenderDrawColor(renderer, 255,255,255, 255);
                         break;
                     case 1:
-                        SDL_SetRenderDrawColor(renderer, 255,0,0, 255);
-                        break;
-                    case 2:
                         SDL_SetRenderDrawColor(renderer, 0,0,255, 255);
                         break;
-                    case 3:
+                    case 2:
                         SDL_SetRenderDrawColor(renderer, 0,255,0, 255);
                         break;
                 }

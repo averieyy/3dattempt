@@ -2,11 +2,11 @@
 #include <vector>
 #include "terrain.cpp"
 
-double camera_x = 0;
+double camera_x = 8;
 double camera_y = 0;
-double camera_z = 0;
+double camera_z = 8;
 
-bool player_on_ground = false;
+bool player_on_ground = true;
 
 double camera_rot_x = 0; // Spinnies
 double camera_rot_y = 0; // Uppies

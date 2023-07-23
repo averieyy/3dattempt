@@ -52,17 +52,16 @@ std::vector<terrain_chunk> create_landscape (int sx, int sy, int size) { // star
         }
     }
 
-    landscape[0].type = 1;
-    landscape[size*size-1].type = 2;
+    landscape[size*size-1].type = 1;
 
     int x = -1;
     int y = -1;
-    while ((x == -1 && y == -1) || landscape[y*size+x].type != 0) {
+    while ((x == -1 && y == -1) || (x == 0 && y == 0) || landscape[y*size+x].type != 0) {
         x = ((double)rand()/(double)RAND_MAX)*size;
         y = ((double)rand()/(double)RAND_MAX)*size;
     }
 
-    landscape[y*size+x].type = 3;
+    landscape[y*size+x].type = 2;
 
     return landscape;
 }
